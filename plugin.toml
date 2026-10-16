@@ -1,0 +1,46 @@
+# Snap: macOS-style screenshots for Noctalia on niri.
+#
+# The picker panel chooses what to capture (region, window, one screen, all
+# screens). The service runs the capture and opens the preview panel, which
+# offers Annotate (Noctalia's editor), Open, Copy, Show in folder and Delete.
+# Region and screen captures go through the shell's own screenshot stack, so
+# [shell.screenshot] decides where they're saved and whether they're copied;
+# window captures come from niri and get rounded corners and a drop shadow.
+
+id = "filedesless/snap"
+name = "Snap"
+version = "0.1.0"
+plugin_api = 26
+author = "filedesless"
+license = "MIT"
+icon = "camera"
+description = "macOS-style screenshots: pick a region, window or screen, then annotate, open, copy or delete it from a floating preview."
+tags = ["screenshot", "utility", "panel", "service", "niri"]
+dependencies = ["niri", "imagemagick", "wl-clipboard", "jq"]
+
+# Mode picker. Open with: noctalia msg panel-toggle filedesless/snap:picker
+[[panel]]
+id = "picker"
+entry = "picker.luau"
+width = 560
+height = 200
+placement = "floating"
+position = "center"
+keyboard_focus = "exclusive"
+capture_keys = ["r", "w", "s", "a", "1", "2", "3", "4", "Left", "Right", "Tab", "shift+Tab", "Return", "space"]
+
+# Result preview, opened by the service after each capture.
+[[panel]]
+id = "preview"
+entry = "preview.luau"
+width = 600
+height = 460
+placement = "floating"
+position = "bottom_right"
+keyboard_focus = "exclusive"
+capture_keys = ["a", "o", "c", "f", "d", "Delete", "Return"]
+
+# Runs captures so they outlive the picker panel closing.
+[[service]]
+id = "service"
+entry = "service.luau"
