@@ -19,6 +19,12 @@ local function setting(path)
   return type(value) == "string" and value or ""
 end
 
+-- Theme accent for the monitor outline (getColor is API 31; fall back on older hosts).
+local function accent()
+  local ok, color = pcall(function() return noctalia.getColor("primary") end)
+  return ok and type(color) == "string" and color or "#ffffff"
+end
+
 local function capture(mode)
   if busy then
     return
@@ -29,6 +35,7 @@ local function capture(mode)
     mode,
     setting("shell.screenshot.directory"),
     setting("shell.screenshot.filename_pattern"),
+    accent(),
   }
   noctalia.runAsync(argv, function(res)
     busy = false
@@ -39,7 +46,7 @@ local function capture(mode)
     if res.exitCode ~= 0 or path == "" then
       local why = noctalia.string.trim(res.stderr or "")
       if why == "" then
-        why = "capture.sh exited with " .. tostring(res.exitCode)
+        why = "capture.sh exited with code " .. tostring(res.exitCode)
       end
       noctalia.notifyError("Screenshot failed", why)
       return

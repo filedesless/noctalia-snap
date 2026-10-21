@@ -5,7 +5,7 @@
 local MODES = {
   { id = "region", label = "Region", glyph = "crop", key = "R", hint = "Drag an area" },
   { id = "window", label = "Window", glyph = "app-window", key = "W", hint = "Click a window" },
-  { id = "screen", label = "Screen", glyph = "device-desktop", key = "S", hint = "Pick a monitor" },
+  { id = "screen", label = "Screen", glyph = "device-desktop", key = "S", hint = "Click a monitor" },
   { id = "all", label = "All screens", glyph = "devices", key = "A", hint = "Every monitor" },
 }
 local KEYS = {

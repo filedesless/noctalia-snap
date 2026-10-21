@@ -2,11 +2,14 @@
 
 macOS-style screenshots for [Noctalia](https://github.com/noctalia-dev/noctalia) on niri.
 
-A picker panel chooses what to capture: **Region**, **Window**, **Screen** (pick a monitor) or **All screens**. Use
+A picker panel chooses what to capture: **Region**, **Window**, **Screen** (click a monitor) or **All screens**. Use
 a click, the key on each tile (`R` `W` `S` `A`, or `1`–`4`), or the arrows and `Enter`. The capture is saved and
 copied according to your `[shell.screenshot]` settings. A preview then opens bottom-right with **Annotate**
 (Noctalia's editor), **Open**, **Copy**, **Folder** (show in the file manager) and **Delete**, each with a key
 (`A` `O` `C` `F` `D`).
+
+Picking a screen dims every monitor except the one under the pointer, which gets an outline in your theme's
+accent color. Press `Esc` in any picker to cancel quietly.
 
 Window captures come from niri. Snap restores full opacity (niri bakes window-rule opacity into captures), rounds
 the corners to match on-screen windows (16 px), and adds a soft drop shadow.
@@ -14,6 +17,7 @@ the corners to match on-screen windows (16 px), and adds a soft drop shadow.
 ## Requirements
 
 - niri, for window picking and capture
+- `slurp`, to click a monitor for **Screen**
 - ImageMagick (`magick`), for the window shadow
 - `wl-clipboard`, to copy window captures and for the preview's Copy
 - `jq`
@@ -51,7 +55,8 @@ noctalia msg plugin filedesless/snap:service all capture region
 Everything Snap does is in `capture.sh` and the three `.luau` entries:
 
 - `noctalia msg` (screenshots, the annotation editor, opening the preview panel)
-- `niri msg` (`pick-window`, `screenshot-window` into `$XDG_RUNTIME_DIR/noctalia-snap/`)
-- `magick`, `wl-copy`, `xdg-open`, `gdbus`
+- `niri msg` (`pick-window`, `screenshot-window` into `$XDG_RUNTIME_DIR/noctalia-snap/`, and `outputs`/`layers` to
+  find monitors and tell when the region overlay closes)
+- `slurp`, `magick`, `wl-copy`, `xdg-open`, `gdbus`
 - files: it writes window captures into your screenshot folder, and **Delete** removes the previewed file. It makes
   no network requests.
