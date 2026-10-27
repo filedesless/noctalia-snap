@@ -91,9 +91,32 @@ overlay_open() {
         or .namespace == "noctalia-annotate")' >/dev/null
 }
 
-# wait_delay: sleep for the requested timer, if any.
+# notify REPLACES SECONDS: show or update the countdown notification and print
+# its id. transient keeps it out of the notification history.
+notify() {
+    busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+        org.freedesktop.Notifications Notify 'susssasa{sv}i' \
+        Snap "$1" camera "Screenshot in $2 s" "" 0 1 transient b true 0 2>/dev/null |
+        cut -d' ' -f2
+}
+
+# wait_delay: count down the requested timer, if any, in a notification that
+# closes (and gets time to fade out) before the capture.
 wait_delay() {
-    [ "$delay" -eq 0 ] || sleep "$delay"
+    [ "$delay" -eq 0 ] && return
+    nid=$(notify 0 "$delay")
+    left=$delay
+    while [ "$left" -gt 1 ]; do
+        sleep 1
+        left=$((left - 1))
+        [ -z "$nid" ] || notify "$nid" "$left" >/dev/null
+    done
+    sleep 1
+    if [ -n "$nid" ]; then
+        busctl --user call org.freedesktop.Notifications /org/freedesktop/Notifications \
+            org.freedesktop.Notifications CloseNotification u "$nid" >/dev/null 2>&1
+        sleep 0.5
+    fi
 }
 
 # shell_capture ARGS...: run a non-interactive Noctalia capture and print the file.

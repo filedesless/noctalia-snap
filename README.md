@@ -11,8 +11,8 @@ copied according to your `[shell.screenshot]` settings. A preview then opens bot
 Press `T` (or click the timer under the tiles) to cycle a delay: off, 3, 5 or 10 seconds. Snap remembers it.
 **Region**, **Screen** and **Window** wait after you pick the area, monitor or window, so you can open a menu or
 hover something first; **All screens** waits right away. A timed region is picked with `slurp` and captured with
-`grim` (then copied), since Noctalia's own overlay captures as soon as you release. No countdown is shown, so
-nothing extra ends up in the shot.
+`grim` (then copied), since Noctalia's own overlay captures as soon as you release. A notification counts down
+and closes just before the capture, so it stays out of the shot.
 
 Picking a screen dims every monitor except the one under the pointer, which gets an outline in your theme's
 accent color. Press `Esc` in any picker to cancel quietly.
@@ -66,6 +66,6 @@ Everything Snap does is in `capture.sh` and the three `.luau` entries:
 - `noctalia msg` (screenshots, the annotation editor, opening the preview panel)
 - `niri msg` (`pick-window`, `screenshot-window` into `$XDG_RUNTIME_DIR/noctalia-snap/`, and `outputs`/`layers` to
   find monitors and tell when the region overlay closes)
-- `slurp`, `grim`, `magick`, `wl-copy`, `xdg-open`, `gdbus`
+- `slurp`, `grim`, `magick`, `wl-copy`, `busctl` (the countdown notification), `xdg-open`, `gdbus`
 - files: it writes window captures into your screenshot folder, and **Delete** removes the previewed file. It makes
   no network requests.
