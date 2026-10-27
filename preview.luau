@@ -40,11 +40,9 @@ local function showInFolder()
   -- fall back to opening the folder.
   local uri = "file://" .. result.path
   noctalia.runAsync({
-    "gdbus", "call", "--session",
-    "--dest", "org.freedesktop.FileManager1",
-    "--object-path", "/org/freedesktop/FileManager1",
-    "--method", "org.freedesktop.FileManager1.ShowItems",
-    "['" .. uri .. "']", "",
+    "busctl", "--user", "call",
+    "org.freedesktop.FileManager1", "/org/freedesktop/FileManager1",
+    "org.freedesktop.FileManager1", "ShowItems", "ass", "1", uri, "",
   }, function(res)
     if res.exitCode ~= 0 then
       noctalia.runAsync({ "xdg-open", dirname(result.path) })

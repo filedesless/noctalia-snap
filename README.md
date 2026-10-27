@@ -28,7 +28,7 @@ the corners to match on-screen windows (16 px), and adds a soft drop shadow.
 - ImageMagick (`magick`), for the window shadow
 - `wl-clipboard`, to copy window captures and for the preview's Copy
 - `jq`
-- `gdbus` and a file manager implementing `org.freedesktop.FileManager1` (e.g. Nautilus) for **Folder**; without
+- `busctl` (systemd) and a file manager implementing `org.freedesktop.FileManager1` (e.g. Nautilus) for **Folder**; without
   it Snap opens the folder instead
 
 Set `annotate = false` under `[shell.screenshot]`: otherwise Region and Screen captures open the editor before
@@ -66,6 +66,6 @@ Everything Snap does is in `capture.sh` and the three `.luau` entries:
 - `noctalia msg` (screenshots, the annotation editor, opening the preview panel)
 - `niri msg` (`pick-window`, `screenshot-window` into `$XDG_RUNTIME_DIR/noctalia-snap/`, and `outputs`/`layers` to
   find monitors and tell when the region overlay closes)
-- `slurp`, `grim`, `magick`, `wl-copy`, `busctl` (the countdown notification), `xdg-open`, `gdbus`
+- `slurp`, `grim`, `magick`, `wl-copy`, `busctl` (the countdown notification and **Folder**), `xdg-open`
 - files: it writes window captures into your screenshot folder, and **Delete** removes the previewed file. It makes
   no network requests.
