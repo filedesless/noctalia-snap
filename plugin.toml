@@ -9,25 +9,25 @@
 
 id = "filedesless/snap"
 name = "Snap"
-version = "0.1.0"
+version = "0.2.0"
 plugin_api = 26
 author = "filedesless"
 license = "MIT"
 icon = "camera"
 description = "macOS-style screenshots: pick a region, window or screen, then annotate, open, copy or delete it from a floating preview."
 tags = ["screenshot", "utility", "panel", "service", "niri"]
-dependencies = ["niri", "imagemagick", "wl-clipboard", "jq", "slurp"]
+dependencies = ["niri", "imagemagick", "wl-clipboard", "jq", "slurp", "grim"]
 
 # Mode picker. Open with: noctalia msg panel-toggle filedesless/snap:picker
 [[panel]]
 id = "picker"
 entry = "picker.luau"
 width = 560
-height = 200
+height = 240
 placement = "floating"
 position = "center"
 keyboard_focus = "exclusive"
-capture_keys = ["r", "w", "s", "a", "1", "2", "3", "4", "Left", "Right", "Tab", "shift+Tab", "Return", "space"]
+capture_keys = ["r", "w", "s", "a", "t", "1", "2", "3", "4", "Left", "Right", "Tab", "shift+Tab", "Return", "space"]
 
 # Result preview, opened by the service after each capture.
 [[panel]]

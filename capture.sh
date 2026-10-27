@@ -1,9 +1,12 @@
 #!/bin/sh
-# capture.sh MODE DIR PATTERN [ACCENT]: take one screenshot and print its path.
+# capture.sh MODE DIR PATTERN [ACCENT [DELAY]]: take one screenshot and print its path.
 #   MODE     region | screen (pick one output) | all (every output) | window
 #   DIR      [shell.screenshot] directory ("" = XDG Pictures or ~/Pictures)
 #   PATTERN  [shell.screenshot] filename_pattern ("" = Noctalia's default)
 #   ACCENT   #rrggbb outlining the hovered monitor when picking a screen
+#   DELAY    seconds to wait before capturing (default 0), counted after the
+#            region, monitor or window is picked. A timed region is picked
+#            with slurp and captured with grim instead of Noctalia's overlay.
 #
 # region/screen/all go through Noctalia's own capture, which saves (and copies)
 # per [shell.screenshot] and is picked up as the newest file. `noctalia msg
@@ -22,6 +25,10 @@ mode=${1:-}
 dir=${2:-}
 pattern=${3:-}
 accent=${4:-#ffffff}
+delay=${5:-0}
+case $delay in
+"" | *[!0-9]*) echo "capture.sh: DELAY must be a whole number of seconds" >&2; exit 2 ;;
+esac
 
 case $dir in
 "") dir=$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures") ;;
@@ -84,8 +91,14 @@ overlay_open() {
         or .namespace == "noctalia-annotate")' >/dev/null
 }
 
+# wait_delay: sleep for the requested timer, if any.
+wait_delay() {
+    [ "$delay" -eq 0 ] || sleep "$delay"
+}
+
 # shell_capture ARGS...: run a non-interactive Noctalia capture and print the file.
 shell_capture() {
+    wait_delay
     # Let the picker panel finish closing so it isn't in the shot.
     sleep 0.3
     touch "$marker"
@@ -95,6 +108,19 @@ shell_capture() {
 
 case $mode in
 region)
+    if [ "$delay" -gt 0 ]; then
+        # Noctalia's overlay captures as soon as the drag ends, so a timed
+        # region is picked with slurp, then captured with grim after the wait.
+        sleep 0.3
+        geom=$(slurp -d -b '#00000066' -c "$accent" -w 2) || exit 10
+        [ -n "$geom" ] || exit 10
+        wait_delay
+        out=$dir/$(date "+$pattern").png
+        grim -g "$geom" "$out" || fail 11 "grim couldn't capture $geom"
+        wl-copy --type image/png <"$out" || true
+        printf '%s\n' "$out"
+        exit 0
+    fi
     sleep 0.3
     touch "$marker"
     why=$(noctalia msg screenshot-region 2>&1) || fail 11 "noctalia msg screenshot-region: $why"
@@ -125,6 +151,7 @@ all) shell_capture screenshot-fullscreen all ;;
 window)
     id=$(niri msg -j pick-window | jq -r '.id // empty')
     [ -n "$id" ] || exit 10
+    wait_delay
     raw=$tmp/window.png
     rm -f "$raw"
     niri msg action screenshot-window --id "$id" --write-to-disk true --path "$raw" >/dev/null ||
@@ -145,7 +172,7 @@ window)
     printf '%s\n' "$out"
     ;;
 *)
-    echo "usage: capture.sh region|screen|all|window DIR PATTERN [ACCENT]" >&2
+    echo "usage: capture.sh region|screen|all|window DIR PATTERN [ACCENT [DELAY]]" >&2
     exit 2
     ;;
 esac

@@ -3,7 +3,7 @@
 -- out of the shot.
 --
 -- State channel:
---   "request"  set by the picker: { mode = "region"|"window"|"screen"|"all", n }
+--   "request"  set by the picker: { mode = "region"|"window"|"screen"|"all", delay = seconds, n }
 --   "result"   set here:          { path = "/abs/file.png", n }
 
 local SCRIPT = noctalia.pluginDir() .. "/capture.sh"
@@ -25,7 +25,7 @@ local function accent()
   return ok and type(color) == "string" and color or "#ffffff"
 end
 
-local function capture(mode)
+local function capture(mode, delay)
   if busy then
     return
   end
@@ -36,6 +36,7 @@ local function capture(mode)
     setting("shell.screenshot.directory"),
     setting("shell.screenshot.filename_pattern"),
     accent(),
+    tostring(math.max(0, math.floor(tonumber(delay) or 0))),
   }
   noctalia.runAsync(argv, function(res)
     busy = false
@@ -59,14 +60,17 @@ end
 
 noctalia.state.watch("request", function(req)
   if type(req) == "table" and type(req.mode) == "string" then
-    capture(req.mode)
+    capture(req.mode, req.delay)
   end
 end)
 
--- `noctalia msg plugin filedesless/snap:service all capture <mode>` skips the
--- picker, for a direct keybind.
+-- `noctalia msg plugin filedesless/snap:service all capture "<mode> [seconds]"`
+-- skips the picker, for a direct keybind.
 function onIpc(event, payload)
   if event == "capture" and payload ~= nil and payload ~= "" then
-    capture(payload)
+    local mode, delay = string.match(payload, "^%s*(%S+)%s*(%d*)%s*$")
+    if mode ~= nil then
+      capture(mode, delay)
+    end
   end
 end

@@ -8,6 +8,12 @@ copied according to your `[shell.screenshot]` settings. A preview then opens bot
 (Noctalia's editor), **Open**, **Copy**, **Folder** (show in the file manager) and **Delete**, each with a key
 (`A` `O` `C` `F` `D`).
 
+Press `T` (or click the timer under the tiles) to cycle a delay: off, 3, 5 or 10 seconds. Snap remembers it.
+**Region**, **Screen** and **Window** wait after you pick the area, monitor or window, so you can open a menu or
+hover something first; **All screens** waits right away. A timed region is picked with `slurp` and captured with
+`grim` (then copied), since Noctalia's own overlay captures as soon as you release. No countdown is shown, so
+nothing extra ends up in the shot.
+
 Picking a screen dims every monitor except the one under the pointer, which gets an outline in your theme's
 accent color. Press `Esc` in any picker to cancel quietly.
 
@@ -17,7 +23,8 @@ the corners to match on-screen windows (16 px), and adds a soft drop shadow.
 ## Requirements
 
 - niri, for window picking and capture
-- `slurp`, to click a monitor for **Screen**
+- `slurp`, to click a monitor for **Screen** and to pick a timed **Region**
+- `grim`, to capture a timed **Region**
 - ImageMagick (`magick`), for the window shadow
 - `wl-clipboard`, to copy window captures and for the preview's Copy
 - `jq`
@@ -44,10 +51,12 @@ Bind the picker to a key in your compositor, e.g. in niri:
 Print { spawn "noctalia" "msg" "panel-toggle" "filedesless/snap:picker"; }
 ```
 
-To capture without the picker, send a mode (`region`, `window`, `screen` or `all`) to the service:
+To capture without the picker, send a mode (`region`, `window`, `screen` or `all`) to the service, optionally
+followed by a delay in seconds:
 
 ```sh
 noctalia msg plugin filedesless/snap:service all capture region
+noctalia msg plugin filedesless/snap:service all capture "screen 5"
 ```
 
 ## What it runs
@@ -57,6 +66,6 @@ Everything Snap does is in `capture.sh` and the three `.luau` entries:
 - `noctalia msg` (screenshots, the annotation editor, opening the preview panel)
 - `niri msg` (`pick-window`, `screenshot-window` into `$XDG_RUNTIME_DIR/noctalia-snap/`, and `outputs`/`layers` to
   find monitors and tell when the region overlay closes)
-- `slurp`, `magick`, `wl-copy`, `xdg-open`, `gdbus`
+- `slurp`, `grim`, `magick`, `wl-copy`, `xdg-open`, `gdbus`
 - files: it writes window captures into your screenshot folder, and **Delete** removes the previewed file. It makes
   no network requests.
